@@ -68,11 +68,11 @@ template <typename T>
 int Format(std::basic_string<T>& buffer, T const* const format, ...) {
   va_list args;
   va_start(args, format);
-  const size_t len = GetFormattedLength(format, args);
+  const int len = GetFormattedLength(format, args);
   if (len <= 0) {
     return -1;
   }
-  buffer.resize(len);
+  buffer.resize(static_cast<size_t>(len));
   int n = FormatV(&buffer[0], len + 1, format, args);
   va_end(args);
   return n;
@@ -104,7 +104,7 @@ template <typename T,
               (is_char<decltype(std::declval<T>().ToString())>::value ||
                is_wchar<decltype(std::declval<T>().ToString())>::value)>>
 auto Argument(T const& value) noexcept {
-  return value.ToString();
+    return value.ToString();
 }
 }  // namespace internal
 
