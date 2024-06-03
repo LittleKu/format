@@ -3,7 +3,7 @@
  * @author    : LittleKu<kklvzl@gmail.com>
  * @date      : 2024-06-02 11:27:09
  * @brief     : A C style formatter support std::string and std::wstring.
- *              And of course custom types are supported.require C++14
+ *              And of course custom types are supported.require c++17
  */
 #ifndef FORMAT_HPP_
 #define FORMAT_HPP_

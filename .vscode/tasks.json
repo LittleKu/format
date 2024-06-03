@@ -6,7 +6,7 @@
     {
       "label": "build",
       "type": "shell",
-      "command": "cl.exe /EHsc /MDd /DDEBUG /D_DEBUG /D_WIN32 /Zi /std:c++14 /Od test.cc /link /DEBUG:FULL /MACHINE:X86 /OUT:test.exe",
+      "command": "cl.exe /EHsc /MDd /DDEBUG /D_DEBUG /D_WIN32 /Zi /std:c++17 /Od test.cc /link /DEBUG:FULL /MACHINE:X86 /OUT:test.exe",
     }
   ]
 }
