@@ -3,7 +3,7 @@
  * @author    : LittleKu<kklvzl@gmail.com>
  * @date      : 2024-06-02 11:27:09
  * @brief     : A C style formatter support std::string and std::wstring.
- *              And of course custom types are supported.require c++17
+ *              And of course custom types are supported.require c++20.
  */
 #ifndef FORMAT_HPP_
 #define FORMAT_HPP_
@@ -11,25 +11,33 @@
 #include <stdarg.h>
 #include <stdio.h>
 
+#include <concepts>
 #include <string>
 #include <type_traits>
 
 namespace format {
 
 namespace internal {
-template <typename T>
-struct is_char
-    : std::integral_constant<
-          bool,
-          std::is_same_v<typename std::decay_t<T>, char*> ||
-              std::is_same_v<typename std::decay_t<T>, const char*>> {};
 
 template <typename T>
-struct is_wchar
-    : std::integral_constant<
-          bool,
-          std::is_same_v<typename std::decay_t<T>, wchar_t*> ||
-              std::is_same_v<typename std::decay_t<T>, const wchar_t*>> {};
+concept IsChar = std::is_same_v<std::decay_t<T>, char*> ||
+                 std::is_same_v<std::decay_t<T>, const char*>;
+
+template <typename T>
+concept IsWchar = std::is_same_v<std::decay_t<T>, wchar_t*> ||
+                  std::is_same_v<std::decay_t<T>, const wchar_t*>;
+
+template <typename T>
+concept IsRegular = std::is_integral_v<T> || std::is_floating_point_v<T> ||
+                    IsChar<T> || IsWchar<T>;
+
+template <typename T>
+concept IsXChar = IsChar<T> || IsWchar<T>;
+
+template <typename T>
+concept HasToString = requires(T& t) {
+  { t.ToString() } -> IsXChar;
+};
 
 inline int GetFormattedLength(const char* format, va_list args) {
   return _vscprintf(format, args);
@@ -78,10 +86,8 @@ int Format(std::basic_string<T>& buffer, T const* const format, ...) {
   return n;
 }
 
-template <typename T,
-          typename = std::enable_if_t<std::is_integral_v<T> ||
-                                      std::is_floating_point_v<T> ||
-                                      is_char<T>::value || is_wchar<T>::value>>
+template <typename T>
+  requires IsRegular<T>
 T Argument(T value) noexcept {
   return value;
 }
@@ -91,20 +97,10 @@ CharT const* Argument(std::basic_string<CharT> const& value) noexcept {
   return value.c_str();
 }
 
-template <typename T, typename = void>
-struct HasStringType : std::false_type {};
-
 template <typename T>
-struct HasStringType<T, std::void_t<decltype(std::declval<T*>()->ToString())>>
-    : std::true_type {};
-
-template <typename T,
-          typename = std::enable_if_t<
-              HasStringType<T>::value &&
-              (is_char<decltype(std::declval<T>().ToString())>::value ||
-               is_wchar<decltype(std::declval<T>().ToString())>::value)>>
+  requires HasToString<T>
 auto Argument(T const& value) noexcept {
-    return value.ToString();
+  return value.ToString();
 }
 }  // namespace internal
 

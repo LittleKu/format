@@ -9,6 +9,8 @@ class Test {
   const wchar_t* ToString() const { return L"Test"; } // good
   // std::string ToString() const { return "Test"; } // error
   // std::wstring ToString() const { return L"Test"; } // error
+  // char *ToString() const { return const_cast<char*>("Test"); } // good
+  // wchar_t *ToString() const { return const_cast<wchar_t*>(L"Test"); } // good
 };
 
 int main(int argc, char** argv) {
